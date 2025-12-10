@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Store Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0f172a; color: white; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid #334155; }
+        .card { background: #1e293b; padding: 25px; border-radius: 10px; margin-bottom: 25px; }
+        h1 { color: #60a5fa; margin-bottom: 10px; }
+        h2 { color: #93c5fd; margin-bottom: 15px; }
+        input, select, button { padding: 12px; border-radius: 6px; border: 1px solid #475569; background: #334155; color: white; margin: 5px 0; width: 100%; }
+        button { background: #3b82f6; border: none; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        button:hover { background: #2563eb; }
+        .result { background: #10b981; padding: 15px; border-radius: 6px; margin-top: 20px; word-break: break-all; display: none; }
+        .error { background: #ef4444; }
+        .loading { display: none; text-align: center; margin: 20px 0; }
+        .section { margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Script Store Whitelist System</h1>
+            <p>Generate and manage licenses for your Roblox scripts</p>
+        </header>
+
+        <div class="card">
+            <h2>📦 Step 1: Create Products (via Supabase)</h2>
+            <p>Go to Supabase Table Editor → "products" table → Add your script details.</p>
+            <p><strong>Required fields:</strong> name, price, script_url (Pastebin/Raw GitHub link)</p>
+        </div>
+
+        <div class="card">
+            <h2>👤 Step 2: Add Customer</h2>
+            <div id="addCustomer">
+                <input type="text" id="robloxId" placeholder="Roblox User ID">
+                <input type="text" id="robloxUsername" placeholder="Roblox Username">
+                <input type="email" id="customerEmail" placeholder="Customer Email">
+                <button onclick="addCustomer()">Add Customer</button>
+                <div id="customerResult" class="result"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔑 Step 3: Generate License Key</h2>
+            <div id="generateLicense">
+                <input type="text" id="productId" placeholder="Product ID (from Supabase)">
+                <input type="text" id="customerId" placeholder="Customer ID (from Step 2)">
+                <input type="number" id="expireDays" placeholder="Expires in days (optional)">
+                <input type="text" id="bindHwid" placeholder="HWID for device lock (optional)">
+                <button onclick="generateLicense()">Generate License Key</button>
+                <div id="licenseResult" class="result"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>✅ Step 4: Test License</h2>
+            <input type="text" id="testLicenseKey" placeholder="License key to test">
+            <button onclick="testLicense()">Test Validation</button>
+            <div id="testResult" class="result"></div>
+        </div>
+
+        <div class="loading" id="loading">Processing...</div>
+    </div>
+
+    <script>
+        const API_URL = 'https://whitelist-system.vercel.app/api';
+        
+        async function addCustomer() {
+            const robloxId = document.getElementById('robloxId').value;
+            const robloxUsername = document.getElementById('robloxUsername').value;
+            const email = document.getElementById('customerEmail').value;
+            
+            // Note: In production, you'd call your own API endpoint
+            // For now, show manual instructions
+            const result = `Manual Step: Go to Supabase → "customers" table → Insert:
+            - roblox_user_id: "${robloxId}"
+            - roblox_username: "${robloxUsername}"
+            - email: "${email}"
+            
+            Copy the generated UUID as Customer ID for next step.`;
+            
+            showResult('customerResult', result, false);
+        }
+        
+        async function generateLicense() {
+            showLoading(true);
+            const productId = document.getElementById('productId').value;
+            const customerId = document.getElementById('customerId').value;
+            const expireDays = document.getElementById('expireDays').value;
+            const hwid = document.getElementById('bindHwid').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/license/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        customer_id: customerId,
+                        expires_days: expireDays || null,
+                        hwid: hwid || null
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const result = `✅ License Generated Successfully!
+                    
+                    License Key: ${data.license_key}
+                    
+                    Give this to the buyer. They should paste it in their script.
+                    
+                    License Details:
+                    - Product: ${data.license.products.name}
+                    - Customer: ${data.license.customers.roblox_username}
+                    - Expires: ${data.license.expires_at || 'Never'}
+                    - Active: ${data.license.is_active ? 'Yes' : 'No'}`;
+                    
+                    showResult('licenseResult', result, true);
+                } else {
+                    showResult('licenseResult', `Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResult('licenseResult', `Connection error: ${error.message}`, false);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function testLicense() {
+            showLoading(true);
+            const licenseKey = document.getElementById('testLicenseKey').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/license/validate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        license_key: licenseKey,
+                        hwid: 'test-hwid-123' // Simulated HWID
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.valid) {
+                    const result = `✅ License is VALID!
+                    
+                    Product: ${data.license.product}
+                    Customer: ${data.license.customer.roblox_username}
+                    Script URL: ${data.license.script_url}
+                    Expires: ${data.license.expires_at || 'Never'}`;
+                    
+                    showResult('testResult', result, true);
+                } else {
+                    showResult('testResult', `❌ License invalid: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResult('testResult', `Connection error: ${error.message}`, false);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function showResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = isSuccess ? 'result' : 'result error';
+            element.style.display = 'block';
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        // Initialize
+        console.log('Dashboard loaded. API URL:', API_URL);
+    </script>
+</body>
+</html>

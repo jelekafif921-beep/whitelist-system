@@ -1,10 +1,9 @@
 {
   "name": "whitelist-system",
   "version": "1.0.0",
+  "type": "module",
   "dependencies": {
-    "@supabase/supabase-js": "^2.38.0",
-    "crypto": "^1.0.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.3"
+    "@supabase/supabase-js": "^2.39.0",
+    "cors": "^2.8.5"
   }
 }

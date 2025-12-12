@@ -24,18 +24,18 @@
 <body>
     <div class="container">
         <header>
-            <h1>🔐 Script Store Whitelist System</h1>
+            <h1>Script Store Whitelist System</h1>
             <p>Generate and manage licenses for your Roblox scripts</p>
         </header>
 
         <div class="card">
-            <h2>📦 Step 1: Create Products (via Supabase)</h2>
+            <h2>Step 1: Create Products (via Supabase)</h2>
             <p>Go to Supabase Table Editor → "products" table → Add your script details.</p>
             <p><strong>Required fields:</strong> name, price, script_url (Pastebin/Raw GitHub link)</p>
         </div>
 
         <div class="card">
-            <h2>👤 Step 2: Add Customer</h2>
+            <h2>Step 2: Add Customer</h2>
             <div id="addCustomer">
                 <input type="text" id="robloxId" placeholder="Roblox User ID">
                 <input type="text" id="robloxUsername" placeholder="Roblox Username">
@@ -46,7 +46,7 @@
         </div>
 
         <div class="card">
-            <h2>🔑 Step 3: Generate License Key</h2>
+            <h2>Step 3: Generate License Key</h2>
             <div id="generateLicense">
                 <input type="text" id="productId" placeholder="Product ID (from Supabase)">
                 <input type="text" id="customerId" placeholder="Customer ID (from Step 2)">
@@ -58,7 +58,7 @@
         </div>
 
         <div class="card">
-            <h2>✅ Step 4: Test License</h2>
+            <h2>Step 4: Test License</h2>
             <input type="text" id="testLicenseKey" placeholder="License key to test">
             <button onclick="testLicense()">Test Validation</button>
             <div id="testResult" class="result"></div>

@@ -12,9 +12,28 @@
 
     <!-- Admin Key Input -->
     <div class="input-group">
-      <input type="text" id="adminKey" placeholder="Enter Admin Key" />
+      <input type="text" id="adminKeyInput" placeholder="Enter Admin Key" />
       <button id="loadDataBtn">Load Data</button>
     </div>
+
+    <!-- Admin Key Management -->
+    <h2>Admin Keys</h2>
+    <div class="input-group">
+      <input type="text" id="newAdminKey" placeholder="New Admin Key" />
+      <button id="generateKeyBtn">Generate Key</button>
+    </div>
+    <table id="adminKeyTable">
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>Active</th>
+          <th>Created At</th>
+          <th>Revoked At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
     <!-- License Table -->
     <h2>All Licenses</h2>
@@ -46,6 +65,7 @@
       <tbody></tbody>
     </table>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>

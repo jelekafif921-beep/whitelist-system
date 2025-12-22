@@ -1,15 +1,20 @@
 // =======================
-// CONFIG SUPABASE
+// SUPABASE CONFIG
 // =======================
 const SUPABASE_URL = "https://YOUR_SUPABASE_URL.supabase.co";
-const SUPABASE_KEY = "YOUR_SERVICE_ROLE_KEY"; // gunakan service role key untuk admin
+const SUPABASE_KEY = "YOUR_SERVICE_ROLE_KEY";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // =======================
 // DOM ELEMENTS
 // =======================
-const adminInput = document.getElementById("adminKey");
+const adminInput = document.getElementById("adminKeyInput");
 const loadDataBtn = document.getElementById("loadDataBtn");
+
+const newAdminKeyInput = document.getElementById("newAdminKey");
+const generateKeyBtn = document.getElementById("generateKeyBtn");
+const adminKeyTableBody = document.querySelector("#adminKeyTable tbody");
+
 const licenseTableBody = document.querySelector("#licenseTable tbody");
 const historyTableBody = document.querySelector("#historyTable tbody");
 
@@ -18,17 +23,73 @@ const historyTableBody = document.querySelector("#historyTable tbody");
 // =======================
 loadDataBtn.addEventListener("click", () => {
   const adminKey = adminInput.value.trim();
-  if (!adminKey) return alert("Admin key required");
+  if (!adminKey) return alert("Admin Key required");
 
+  loadAdminKeys();
   loadLicenses();
   loadHistory();
+});
+
+generateKeyBtn.addEventListener("click", async () => {
+  const keyValue = newAdminKeyInput.value.trim();
+  if (!keyValue) return alert("Enter new key");
+
+  const { data, error } = await supabase
+    .from("admin_keys")
+    .insert([{ key_value: keyValue }])
+    .select()
+    .single();
+
+  if (error) return alert("Error creating key: " + error.message);
+
+  alert("Admin Key generated!");
+  newAdminKeyInput.value = "";
+  loadAdminKeys();
 });
 
 // =======================
 // FUNCTIONS
 // =======================
 
-// Load all licenses
+// Load Admin Keys
+async function loadAdminKeys() {
+  const { data: keys, error } = await supabase
+    .from("admin_keys")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) return alert("Error loading keys: " + error.message);
+
+  adminKeyTableBody.innerHTML = "";
+  keys.forEach(k => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${k.key_value}</td>
+      <td>${k.is_active}</td>
+      <td>${new Date(k.created_at).toLocaleString()}</td>
+      <td>${k.revoked_at ? new Date(k.revoked_at).toLocaleString() : "-"}</td>
+      <td>
+        ${k.is_active ? `<button class="revoke-btn" data-id="${k.id}">Revoke</button>` : "-"}
+      </td>
+    `;
+    adminKeyTableBody.appendChild(tr);
+  });
+
+  document.querySelectorAll(".revoke-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const { error } = await supabase
+        .from("admin_keys")
+        .update({ is_active: false, revoked_at: new Date().toISOString() })
+        .eq("id", id);
+
+      if (error) return alert("Error revoking key: " + error.message);
+      loadAdminKeys();
+    });
+  });
+}
+
+// Load Licenses
 async function loadLicenses() {
   const { data: licenses, error } = await supabase
     .from("licenses")
@@ -52,7 +113,6 @@ async function loadLicenses() {
     licenseTableBody.appendChild(tr);
   });
 
-  // Attach reset button events
   document.querySelectorAll(".reset-btn").forEach(btn => {
     btn.addEventListener("click", async () => {
       const licenseKey = btn.dataset.license;
@@ -78,7 +138,7 @@ async function loadLicenses() {
   });
 }
 
-// Load reset history
+// Load Reset History
 async function loadHistory() {
   const { data: logs, error } = await supabase
     .from("license_resets")

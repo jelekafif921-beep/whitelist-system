@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Whitelist Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Whitelist Admin Panel</h1>
+
+    <!-- Admin Key Input -->
+    <div class="input-group">
+      <input type="text" id="adminKeyInput" placeholder="Enter Admin Key" />
+      <button id="loadDataBtn">Load Data</button>
+    </div>
+
+    <h2>Generate License</h2>
+<button id="showGenerateFormBtn">Generate New License</button>
+
+<div id="generateForm" style="display:none; margin-top:10px;">
+  <input type="text" id="robloxUserId" placeholder="Roblox User ID" />
+  <input type="text" id="hwid" placeholder="HWID / Device ID" />
+  <select id="productSelect">
+    <option value="">Select Product</option>
+  </select>
+  <button id="generateLicenseBtn">Generate</button>
+  <div id="generatedLicense" style="margin-top:10px; color:lime;"></div>
+</div>
+    <div id="generateForm" style="display:none; margin-top:10px;">
+  <input type="text" id="robloxUserId" placeholder="Roblox User ID" />
+  <input type="text" id="hwid" placeholder="HWID / Device ID (optional)" />
+  <select id="productSelect">
+    <option value="">Select Product</option>
+  </select>
+  <button id="generateLicenseBtn">Generate</button>
+  <div id="generatedLicense" style="margin-top:10px; color:lime;"></div>
+</div>
+
+    
+    <!-- Admin Key Management -->
+    <h2>Admin Keys</h2>
+    <div class="input-group">
+      <input type="text" id="newAdminKey" placeholder="New Admin Key" />
+      <button id="generateKeyBtn">Generate Key</button>
+    </div>
+    <table id="adminKeyTable">
+      <thead>
+        <tr>
+          <th>Key</th>
+          <th>Active</th>
+          <th>Created At</th>
+          <th>Revoked At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    
+    <!-- License Table -->
+    <h2>All Licenses</h2>
+    <table id="licenseTable">
+      <thead>
+        <tr>
+          <th>License Key</th>
+          <th>Product</th>
+          <th>Status</th>
+          <th>Roblox UserID</th>
+          <th>HWID</th>
+          <th>Reset Count</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Reset History Table -->
+    <h2>Reset History</h2>
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>License Key</th>
+          <th>Admin</th>
+          <th>Reset At</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

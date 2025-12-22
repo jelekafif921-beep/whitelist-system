@@ -1,58 +1,51 @@
 body {
+  font-family: Arial, sans-serif;
   background: #0f172a;
   color: #e5e7eb;
-  font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  padding: 50px;
+  padding: 20px;
 }
 
 .container {
-  background: #020617;
-  padding: 25px;
-  border-radius: 12px;
-  width: 400px;
-  box-shadow: 0 0 25px rgba(0,0,0,.6);
-}
-
-h1, h2 {
-  text-align: center;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 input, button {
-  padding: 10px;
-  border-radius: 8px;
+  padding: 8px;
+  margin: 5px;
+  border-radius: 5px;
   border: 1px solid #334155;
 }
 
 button {
   background: #2563eb;
   color: white;
-  font-weight: bold;
   cursor: pointer;
 }
 
-#licenseStatus {
-  background: #1e293b;
-  padding: 10px;
-  border-radius: 8px;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
 
-#resetHistory {
-  list-style: none;
-  padding: 0;
-}
-
-#resetHistory li {
-  background: #1e293b;
-  margin: 5px 0;
+th, td {
+  border: 1px solid #334155;
   padding: 8px;
-  border-radius: 6px;
+  text-align: center;
+}
+
+th {
+  background-color: #1e293b;
+}
+td {
+  background-color: #020617;
+}
+
+button.reset-btn {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
 }

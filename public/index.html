@@ -16,6 +16,19 @@
       <button id="loadDataBtn">Load Data</button>
     </div>
 
+    <h2>Generate License</h2>
+<button id="showGenerateFormBtn">Generate New License</button>
+
+<div id="generateForm" style="display:none; margin-top:10px;">
+  <input type="text" id="robloxUserId" placeholder="Roblox User ID" />
+  <input type="text" id="hwid" placeholder="HWID / Device ID" />
+  <select id="productSelect">
+    <option value="">Select Product</option>
+  </select>
+  <button id="generateLicenseBtn">Generate</button>
+  <div id="generatedLicense" style="margin-top:10px; color:lime;"></div>
+</div>
+    
     <!-- Admin Key Management -->
     <h2>Admin Keys</h2>
     <div class="input-group">
@@ -34,20 +47,6 @@
       </thead>
       <tbody></tbody>
     </table>
-
-    <h2>Generate License</h2>
-<button id="showGenerateFormBtn">Generate New License</button>
-
-<div id="generateForm" style="display:none; margin-top:10px;">
-  <input type="text" id="robloxUserId" placeholder="Roblox User ID" />
-  <input type="text" id="hwid" placeholder="HWID / Device ID" />
-  <select id="productSelect">
-    <option value="">Select Product</option>
-  </select>
-  <button id="generateLicenseBtn">Generate</button>
-  <div id="generatedLicense" style="margin-top:10px; color:lime;"></div>
-</div>
-
     
     <!-- License Table -->
     <h2>All Licenses</h2>

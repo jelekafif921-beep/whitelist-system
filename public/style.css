@@ -6,7 +6,7 @@ body {
 }
 
 .container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -44,6 +44,14 @@ td {
 
 button.reset-btn {
   background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+button.revoke-btn {
+  background-color: #f59e0b;
   color: white;
   border: none;
   padding: 5px 10px;

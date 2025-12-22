@@ -8,85 +8,93 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // =======================
 // DOM ELEMENTS
 // =======================
-const licenseInput = document.getElementById("licenseKey");
 const adminInput = document.getElementById("adminKey");
-const resetBtn = document.getElementById("resetBtn");
-const licenseStatus = document.getElementById("licenseStatus");
-const resetHistory = document.getElementById("resetHistory");
+const loadDataBtn = document.getElementById("loadDataBtn");
+const licenseTableBody = document.querySelector("#licenseTable tbody");
+const historyTableBody = document.querySelector("#historyTable tbody");
 
 // =======================
 // EVENTS
 // =======================
-resetBtn.addEventListener("click", async () => {
-  const licenseKey = licenseInput.value.trim();
+loadDataBtn.addEventListener("click", () => {
   const adminKey = adminInput.value.trim();
-  if (!licenseKey || !adminKey) return alert("Fill all fields");
+  if (!adminKey) return alert("Admin key required");
 
-  // Reset License via API
-  try {
-    const res = await fetch("/api/reset-license", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ license_key: licenseKey, admin_key: adminKey })
-    });
-
-    const data = await res.json();
-    if (data.ok) {
-      alert("License reset successfully!");
-      loadLicenseStatus(licenseKey);
-      loadResetHistory(licenseKey);
-    } else {
-      alert("Error: " + data.error);
-    }
-  } catch (err) {
-    console.error(err);
-    alert("API Error");
-  }
+  loadLicenses();
+  loadHistory();
 });
 
 // =======================
 // FUNCTIONS
 // =======================
-async function loadLicenseStatus(licenseKey) {
-  const { data, error } = await supabase
+
+// Load all licenses
+async function loadLicenses() {
+  const { data: licenses, error } = await supabase
     .from("licenses")
-    .select("*")
-    .eq("license_key", licenseKey)
-    .single();
+    .select("*, products(product_name)")
+    .order("created_at", { ascending: false });
 
-  if (error) {
-    licenseStatus.textContent = "License not found";
-    return;
-  }
+  if (error) return alert("Error loading licenses: " + error.message);
 
-  licenseStatus.innerHTML = `
-    Status: ${data.status} <br/>
-    Roblox UserID: ${data.roblox_user_id || "-"} <br/>
-    HWID: ${data.hwid || "-"} <br/>
-    Reset Count: ${data.reset_count}/${data.max_reset}
-  `;
+  licenseTableBody.innerHTML = "";
+  licenses.forEach(lic => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${lic.license_key}</td>
+      <td>${lic.products ? lic.products.product_name : "-"}</td>
+      <td>${lic.status}</td>
+      <td>${lic.roblox_user_id || "-"}</td>
+      <td>${lic.hwid || "-"}</td>
+      <td>${lic.reset_count}/${lic.max_reset}</td>
+      <td><button class="reset-btn" data-license="${lic.license_key}">Reset</button></td>
+    `;
+    licenseTableBody.appendChild(tr);
+  });
+
+  // Attach reset button events
+  document.querySelectorAll(".reset-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const licenseKey = btn.dataset.license;
+      const adminKey = adminInput.value.trim();
+
+      if (!confirm(`Reset license ${licenseKey}?`)) return;
+
+      const res = await fetch("/api/reset-license", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ license_key: licenseKey, admin_key: adminKey })
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        alert("License reset successfully!");
+        loadLicenses();
+        loadHistory();
+      } else {
+        alert("Error: " + data.error);
+      }
+    });
+  });
 }
 
-async function loadResetHistory(licenseKey) {
-  // Cari license dulu
-  const { data: license } = await supabase
-    .from("licenses")
-    .select("id")
-    .eq("license_key", licenseKey)
-    .single();
-
-  if (!license) return;
-  
-  const { data: logs } = await supabase
+// Load reset history
+async function loadHistory() {
+  const { data: logs, error } = await supabase
     .from("license_resets")
-    .select("*")
-    .eq("license_id", license.id)
+    .select("license_id, admin_user, reset_at, licenses(license_key)")
     .order("reset_at", { ascending: false });
 
-  resetHistory.innerHTML = "";
+  if (error) return alert("Error loading history: " + error.message);
+
+  historyTableBody.innerHTML = "";
   logs.forEach(log => {
-    const li = document.createElement("li");
-    li.textContent = `Reset by: ${log.admin_user || "admin"} at ${new Date(log.reset_at).toLocaleString()}`;
-    resetHistory.appendChild(li);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${log.licenses ? log.licenses.license_key : "-"}</td>
+      <td>${log.admin_user || "-"}</td>
+      <td>${new Date(log.reset_at).toLocaleString()}</td>
+    `;
+    historyTableBody.appendChild(tr);
   });
 }

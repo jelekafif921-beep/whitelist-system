@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - License Reset</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>License Admin Panel</h1>
+    <div class="input-group">
+      <input type="text" id="licenseKey" placeholder="Enter License Key" />
+      <input type="text" id="adminKey" placeholder="Enter Admin Key" />
+      <button id="resetBtn">Reset License</button>
+    </div>
+
+    <h2>License Status</h2>
+    <div id="licenseStatus"></div>
+
+    <h2>Reset History</h2>
+    <ul id="resetHistory"></ul>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

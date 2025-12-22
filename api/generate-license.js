@@ -1,35 +1,39 @@
-import crypto from "crypto";
+export default async function handler(req, res) {
+  try {
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method not allowed" })
+    }
 
-function generateLicense(product = "GEN") {
-  const random = crypto.randomBytes(4).toString("hex").toUpperCase(); // 8 char
-  const timestamp = Date.now().toString(36).toUpperCase(); // entropy tambahan
+    // SAFE body parsing
+    let body = {}
+    if (req.body && typeof req.body === "object") {
+      body = req.body
+    }
 
-  const base = `WL-${product}-${random}-${timestamp}`;
+    const product = body.product
 
-  const checksum = crypto
-    .createHash("sha256")
-    .update(base)
-    .digest("hex")
-    .slice(0, 3)
-    .toUpperCase();
+    if (!product) {
+      return res.status(400).json({
+        error: "Product is required"
+      })
+    }
 
-  return `${base}-${checksum}`;
-}
+    const license =
+      "WL-" +
+      product +
+      "-" +
+      Math.random().toString(36).substring(2, 10).toUpperCase()
 
-export default function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(200).json({
+      ok: true,
+      product,
+      license
+    })
+
+  } catch (err) {
+    console.error("API ERROR:", err)
+    return res.status(500).json({
+      error: "Internal Server Error"
+    })
   }
-
-  const { product } = req.body || {};
-
-  const license = generateLicense(product || "GEN");
-
-  return res.status(200).json({
-    ok: true,
-    license,
-    product: product || "GEN",
-    status: "unused",
-    generated_at: new Date().toISOString(),
-  });
 }
